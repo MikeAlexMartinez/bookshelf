@@ -98,7 +98,7 @@ function StatusButtons({user, book}) {
         <TooltipButton
           label="Remove from list"
           highlight={colors.danger}
-          onClick={() => remove({id: listItem.id})}
+          onClick={() => remove({id: bookId})}
           icon={<FaMinusCircle />}
         />
       ) : (
