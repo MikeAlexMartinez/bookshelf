@@ -5,13 +5,14 @@ import * as React from 'react'
 import Tooltip from '@reach/tooltip'
 import {FaSearch, FaTimes} from 'react-icons/fa'
 // 🐨 you'll need useQuery from 'react-query'
-import {useQuery} from 'react-query';
+// import {useQuery} from 'react-query';
 // import {useAsync} from 'utils/hooks'
-import {client} from 'utils/api-client'
+// import {client} from 'utils/api-client'
 import * as colors from 'styles/colors'
 import {BookRow} from 'components/book-row'
 import {BookListUL, Spinner, Input} from 'components/lib'
 import bookPlaceholderSvg from 'assets/book-placeholder.svg'
+import { useBookSearch, refetchBookSearchQuery } from 'utils/books.exercise';
 
 const loadingBook = {
   title: 'Loading...',
@@ -34,13 +35,7 @@ function DiscoverBooksScreen({user}) {
   // the queryKey should be ['bookSearch', {query}]
   // the queryFn should be the same thing we have in the run function below
   // you'll get back the same stuff you get from useAsync, (except the run function)
-  const {data, error, isLoading, isError, isSuccess} = useQuery({
-    queryKey: ['bookSearch', {query}],
-    queryFn: () => {
-      return client(`books?query=${encodeURIComponent(query)}`, {token: user.token})
-        .then(data => data.books);
-    },
-  })
+  const {data, error, isLoading, isError, isSuccess} = useBookSearch(query, user);
 
   const books = data ?? loadingBooks;
 
@@ -49,6 +44,10 @@ function DiscoverBooksScreen({user}) {
     setQueried(true)
     setQuery(event.target.elements.search.value)
   }
+
+  React.useEffect(() => {
+    return () => refetchBookSearchQuery(user);
+  }, [user]);
 
   return (
     <div>
