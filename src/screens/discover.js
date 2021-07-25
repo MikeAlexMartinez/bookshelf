@@ -1,6 +1,6 @@
 // no final
 
-export * from './discover.exercise'
+// export * from './discover.exercise'
 
 // 💯 Production Monitoring
-// export * from './discover.extra-3'
+export * from './discover.extra-3'
