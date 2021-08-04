@@ -3,6 +3,23 @@ import {renderHook, act} from '@testing-library/react-hooks'
 // 🐨 Here's the thing you'll be testing:
 import {useAsync} from '../hooks'
 
+function getUseAsyncState(overrides) {
+  return {
+    error: null,
+    data: null,
+    status: 'idle',
+    isIdle: true,
+    isLoading: false,
+    isError: false,
+    isSuccess: false,
+    setData: expect.any(Function),
+    setError: expect.any(Function),
+    run: expect.any(Function),
+    reset: expect.any(Function),
+    ...overrides,
+  };
+}
+
 // 💰 I'm going to give this to you. It's a way for you to create a promise
 // which you can imperatively resolve or reject whenever you want.
 function deferred() {
@@ -30,9 +47,7 @@ it('calling run with a promise which resolves', async () => {
   // 🐨 assert the result.current is the correct default state
   const {promise, resolve} = deferred();
   const {result} = renderHook(() => useAsync());
-  expect(result.current.status).toBe('idle');
-  expect(result.current.data).toBeNull();
-  expect(result.current.error).toBeNull();
+  expect(result.current).toEqual(getUseAsyncState());
 
   // 🐨 call `run`, passing the promise
   //    (💰 this updates state so it needs to be done in an `act` callback)
@@ -41,7 +56,11 @@ it('calling run with a promise which resolves', async () => {
   });
 
   // 🐨 assert that result.current is the correct pending state
-  expect(result.current.status).toBe('pending');
+  expect(result.current).toEqual(getUseAsyncState({
+    status: 'pending',
+    isLoading: true,
+    isIdle: false,
+  }));
 
   // 🐨 call resolve and wait for the promise to be resolved
   //    (💰 this updates state too and you'll need it to be an async `act` call so you can await the promise)
@@ -51,8 +70,12 @@ it('calling run with a promise which resolves', async () => {
   });
 
   // 🐨 assert the resolved state
-  expect(result.current.status).toBe('resolved');
-  expect(result.current.data).toEqual(testData);
+  expect(result.current).toEqual(getUseAsyncState({
+    status: 'resolved',
+    isSuccess: true,
+    isIdle: false, 
+    data: testData,
+  }));
 
   // 🐨 call `reset` (💰 this will update state, so...)
   // 🐨 assert the result.current has actually been reset
@@ -60,9 +83,7 @@ it('calling run with a promise which resolves', async () => {
     result.current.reset();
   });
 
-  expect(result.current.status).toBe('idle');
-  expect(result.current.data).toBeNull();
-  expect(result.current.error).toBeNull();
+  expect(result.current).toEqual(getUseAsyncState());
 })
 
 // test.todo('calling run with a promise which rejects')
